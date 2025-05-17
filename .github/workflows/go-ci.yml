@@ -31,11 +31,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version-file: apps/api-server/go.mod
-
       - name: Cache Go modules
         uses: actions/cache@v4
         with:
@@ -45,6 +40,11 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('apps/api-server/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: apps/api-server/go.mod
 
       - name: Install dependencies
         run: go mod tidy
