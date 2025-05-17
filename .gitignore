@@ -1,0 +1,6 @@
+# environment variables
+.env
+
+# build artifacts
+apps/api-server/bin/
+apps/api-server/tmp/
