@@ -16,6 +16,7 @@ func setupTestRouter() *gin.Engine {
 	setupHealthzRouter(r)
 	setupPrometheusRouter(r)
 	setupComputeRouter(r)
+	setupLoadRouter(r)
 	return r
 }
 
@@ -89,6 +90,32 @@ func TestComputeEndpoint(t *testing.T) {
 	r := setupTestRouter()
 
 	req, _ := http.NewRequest("GET", "/compute", nil)
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	want := http.StatusOK
+	got := w.Code
+	if want != got {
+		t.Errorf("want %d, got %d", want, got)
+	}
+
+	var body map[string]string
+	err := json.Unmarshal(w.Body.Bytes(), &body)
+	if err != nil {
+		t.Fatalf("failed to unmarshal body: %v", err)
+	}
+
+	wantBody := "ok"
+	gotBody := body["message"]
+	if wantBody != gotBody {
+		t.Errorf("want %s, got %s", wantBody, gotBody)
+	}
+}
+
+func TestLoadEndpoint(t *testing.T) {
+	r := setupTestRouter()
+
+	req, _ := http.NewRequest("GET", "/load", nil)
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
 

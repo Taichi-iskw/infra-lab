@@ -2,6 +2,7 @@ package main
 
 import (
 	"math"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/prometheus/client_golang/prometheus"
@@ -54,6 +55,15 @@ func setupComputeRouter(r *gin.Engine) {
 	})
 }
 
+func setupLoadRouter(r *gin.Engine) {
+	r.GET("/load", func(c *gin.Context) {
+		for range 10 {
+			time.Sleep(100 * time.Millisecond)
+		}
+		c.JSON(200, gin.H{"message": "ok"})
+	})
+}
+
 func main() {
 	r := gin.Default()
 
@@ -61,6 +71,7 @@ func main() {
 	setupHealthzRouter(r)
 	setupPrometheusRouter(r)
 	setupComputeRouter(r)
+	setupLoadRouter(r)
 
 	r.Run(":8080")
 }
