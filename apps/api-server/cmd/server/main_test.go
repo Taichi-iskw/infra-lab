@@ -4,11 +4,16 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"strings"
 	"testing"
 
 	"github.com/gin-gonic/gin"
 )
+
+func init() {
+	os.Setenv("IS_TEST", "true")
+}
 
 func setupTestRouter() *gin.Engine {
 	r := gin.Default()

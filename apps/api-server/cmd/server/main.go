@@ -2,6 +2,7 @@ package main
 
 import (
 	"math"
+	"os"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -56,10 +57,17 @@ func setupComputeRouter(r *gin.Engine) {
 }
 
 func setupLoadRouter(r *gin.Engine) {
+	isTest := os.Getenv("IS_TEST")
+
 	r.GET("/load", func(c *gin.Context) {
 		for range 10 {
-			time.Sleep(100 * time.Millisecond)
+			if isTest == "true" {
+				time.Sleep(1 * time.Millisecond)
+			} else {
+				time.Sleep(100 * time.Millisecond)
+			}
 		}
+
 		c.JSON(200, gin.H{"message": "ok"})
 	})
 }
