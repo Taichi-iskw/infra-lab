@@ -64,6 +64,12 @@ func setupLoadRouter(r *gin.Engine) {
 	})
 }
 
+func setupErrorRouter(r *gin.Engine) {
+	r.GET("/error", func(c *gin.Context) {
+		c.JSON(500, gin.H{"error": "simulated internal server error"})
+	})
+}
+
 func main() {
 	r := gin.Default()
 
@@ -72,6 +78,7 @@ func main() {
 	setupPrometheusRouter(r)
 	setupComputeRouter(r)
 	setupLoadRouter(r)
+	setupErrorRouter(r)
 
 	r.Run(":8080")
 }
