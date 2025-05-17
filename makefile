@@ -1,7 +1,7 @@
 APP_NAME := api-server
 APP_PATH := apps/$(APP_NAME)
 
-.PHONY: build run test docker-build docker-run docker-clean
+.PHONY: build run test docker-build docker-run docker-clean air
 
 ## Go build
 build:
@@ -30,3 +30,7 @@ clean:
 ## Remove Docker image
 docker-clean:
 	docker rmi $(APP_NAME) || true
+
+## Run development server
+air:
+	cd $(APP_PATH) && air
