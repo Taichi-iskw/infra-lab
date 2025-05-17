@@ -1,6 +1,8 @@
 package main
 
 import (
+	"math"
+
 	"github.com/gin-gonic/gin"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -35,12 +37,30 @@ func setupPrometheusRouter(r *gin.Engine) {
 	})
 }
 
+func setupComputeRouter(r *gin.Engine) {
+	r.GET("/compute", func(c *gin.Context) {
+		// cpu intensive computation
+		for i := range 1000000000 {
+			math.Sqrt(float64(i))
+		}
+
+		// memory intensive computation
+		memory := make([]byte, 1024*1024*1024)
+		for i := range memory {
+			memory[i] = byte(i)
+		}
+
+		c.JSON(200, gin.H{"message": "ok"})
+	})
+}
+
 func main() {
 	r := gin.Default()
 
 	setupPingRouter(r)
 	setupHealthzRouter(r)
 	setupPrometheusRouter(r)
+	setupComputeRouter(r)
 
 	r.Run(":8080")
 }
