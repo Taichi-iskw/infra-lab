@@ -17,12 +17,15 @@ func init() {
 
 func setupTestRouter() *gin.Engine {
 	r := gin.Default()
+
 	setupPingRouter(r)
 	setupHealthzRouter(r)
 	setupPrometheusRouter(r)
 	setupComputeRouter(r)
 	setupLoadRouter(r)
 	setupErrorRouter(r)
+	setupEchoRouter(r)
+
 	return r
 }
 
@@ -165,6 +168,38 @@ func TestErrorEndpoint(t *testing.T) {
 
 	wantBody := "simulated internal server error"
 	gotBody := body["error"]
+	if wantBody != gotBody {
+		t.Errorf("want %s, got %s", wantBody, gotBody)
+	}
+}
+
+func TestEchoEndpoint(t *testing.T) {
+	r := setupTestRouter()
+
+	req, _ := http.NewRequest("POST", "/echo", strings.NewReader("test"))
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	want := http.StatusOK
+	got := w.Code
+	if want != got {
+		t.Errorf("want %d, got %d", want, got)
+	}
+
+	var body map[string]string
+	err := json.Unmarshal(w.Body.Bytes(), &body)
+	if err != nil {
+		t.Fatalf("failed to unmarshal body: %v", err)
+	}
+
+	wantBody := "ok"
+	gotBody := body["message"]
+	if wantBody != gotBody {
+		t.Errorf("want %s, got %s", wantBody, gotBody)
+	}
+
+	wantBody = "test"
+	gotBody = body["body"]
 	if wantBody != gotBody {
 		t.Errorf("want %s, got %s", wantBody, gotBody)
 	}

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"io"
 	"math"
 	"os"
 	"time"
@@ -78,6 +79,17 @@ func setupErrorRouter(r *gin.Engine) {
 	})
 }
 
+func setupEchoRouter(r *gin.Engine) {
+	r.POST("/echo", func(c *gin.Context) {
+		body, err := io.ReadAll(c.Request.Body)
+		if err != nil {
+			c.JSON(400, gin.H{"error": "failed to read request body"})
+			return
+		}
+		c.JSON(200, gin.H{"message": "ok", "body": string(body)})
+	})
+}
+
 func main() {
 	r := gin.Default()
 
@@ -87,6 +99,7 @@ func main() {
 	setupComputeRouter(r)
 	setupLoadRouter(r)
 	setupErrorRouter(r)
+	setupEchoRouter(r)
 
 	r.Run(":8080")
 }
