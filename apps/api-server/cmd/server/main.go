@@ -36,7 +36,6 @@ func setupPrometheusRouter(r *gin.Engine) {
 	r.GET("/metrics", func(c *gin.Context) {
 		httpRequests.Inc()
 		promhttp.Handler().ServeHTTP(c.Writer, c.Request)
-		c.JSON(200, gin.H{"message": "ok"})
 	})
 }
 
