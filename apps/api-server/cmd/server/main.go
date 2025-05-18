@@ -4,6 +4,7 @@ import (
 	"io"
 	"math"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -11,14 +12,50 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
-var httpRequests = prometheus.NewCounter(prometheus.CounterOpts{
-	Name: "http_requests_total",
-	Help: "Total number of HTTP requests",
-})
+// --- Prometheus Metrics ---
+
+var httpRequests = prometheus.NewCounterVec(
+	prometheus.CounterOpts{
+		Name: "http_requests_total",
+		Help: "Total number of HTTP requests",
+	},
+	[]string{"path", "status"},
+)
+
+var httpDuration = prometheus.NewHistogramVec(
+	prometheus.HistogramOpts{
+		Name:    "http_request_duration_seconds",
+		Help:    "Duration of HTTP requests",
+		Buckets: prometheus.DefBuckets,
+	},
+	[]string{"path"},
+)
 
 func init() {
 	prometheus.MustRegister(httpRequests)
+	prometheus.MustRegister(httpDuration)
 }
+
+// --- Prometheus Middleware ---
+
+func prometheusMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		start := time.Now()
+		c.Next()
+		duration := time.Since(start).Seconds()
+
+		path := c.FullPath()
+		if path == "" {
+			path = "unknown"
+		}
+		status := strconv.Itoa(c.Writer.Status())
+
+		httpRequests.WithLabelValues(path, status).Inc()
+		httpDuration.WithLabelValues(path).Observe(duration)
+	}
+}
+
+// --- Routers ---
 
 func setupPingRouter(r *gin.Engine) {
 	r.GET("/ping", func(c *gin.Context) {
@@ -33,25 +70,18 @@ func setupHealthzRouter(r *gin.Engine) {
 }
 
 func setupPrometheusRouter(r *gin.Engine) {
-	r.GET("/metrics", func(c *gin.Context) {
-		httpRequests.Inc()
-		promhttp.Handler().ServeHTTP(c.Writer, c.Request)
-	})
+	r.GET("/metrics", gin.WrapH(promhttp.Handler()))
 }
 
 func setupComputeRouter(r *gin.Engine) {
 	r.GET("/compute", func(c *gin.Context) {
-		// cpu intensive computation
 		for i := range 1000000000 {
 			math.Sqrt(float64(i))
 		}
-
-		// memory intensive computation
 		memory := make([]byte, 1024*1024*1024)
 		for i := range memory {
 			memory[i] = byte(i)
 		}
-
 		c.JSON(200, gin.H{"message": "ok"})
 	})
 }
@@ -67,7 +97,6 @@ func setupLoadRouter(r *gin.Engine) {
 				time.Sleep(100 * time.Millisecond)
 			}
 		}
-
 		c.JSON(200, gin.H{"message": "ok"})
 	})
 }
@@ -89,8 +118,11 @@ func setupEchoRouter(r *gin.Engine) {
 	})
 }
 
+// --- Main ---
+
 func main() {
 	r := gin.Default()
+	r.Use(prometheusMiddleware())
 
 	setupPingRouter(r)
 	setupHealthzRouter(r)

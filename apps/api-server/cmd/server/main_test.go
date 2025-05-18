@@ -78,6 +78,8 @@ func TestHealthzEndpoint(t *testing.T) {
 func TestPrometheusEndpoint(t *testing.T) {
 	r := setupTestRouter()
 
+	httpRequests.WithLabelValues("/metrics", "200").Inc()
+
 	req, _ := http.NewRequest("GET", "/metrics", nil)
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
