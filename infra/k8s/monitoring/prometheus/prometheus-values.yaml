@@ -1,0 +1,12 @@
+server:
+  service:
+    type: NodePort
+    nodePort: 31090
+
+  persistentVolume:
+    enabled: false
+
+extraScrapeConfigs: |
+  - job_name: "api-server"
+    static_configs:
+      - targets: ["api-server.default.svc.cluster.local:8080"]
