@@ -12,3 +12,5 @@ nodes:
         hostPort: 8080
       - containerPort: 31090 # nodeport for prometheus
         hostPort: 31090
+      - containerPort: 31300 # nodeport for grafana
+        hostPort: 31300
