@@ -4,11 +4,9 @@ name: infra-lab
 nodes:
   - role: control-plane
     extraPortMappings:
-      - containerPort: 3000 # Grafana
-        hostPort: 3000
-      - containerPort: 9090 # Prometheus
-        hostPort: 9090
       - containerPort: 8080 # api-server
         hostPort: 8080
       - containerPort: 31090 # nodeport for prometheus
         hostPort: 31090
+      - containerPort: 31300 # nodeport for grafana
+        hostPort: 31300
