@@ -10,3 +10,5 @@ nodes:
         hostPort: 31090
       - containerPort: 31300 # nodeport for grafana
         hostPort: 31300
+      - containerPort: 80 # nodeport for nginx ingress
+        hostPort: 80
