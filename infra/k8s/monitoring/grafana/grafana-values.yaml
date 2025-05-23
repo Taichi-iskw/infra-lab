@@ -1,7 +1,3 @@
-service:
-  type: NodePort
-  nodePort: 31300
-
 datasources:
   datasources.yaml:
     apiVersion: 1
