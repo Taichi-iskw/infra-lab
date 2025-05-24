@@ -2,6 +2,12 @@ server:
   persistentVolume:
     enabled: false
 
+nodeExporter:
+  enabled: true
+  hostPort: false
+  service:
+    type: ClusterIP
+
 extraScrapeConfigs: |
   - job_name: "api-server"
     static_configs:
