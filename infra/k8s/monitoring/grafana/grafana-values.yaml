@@ -1,7 +1,3 @@
-service:
-  type: NodePort
-  nodePort: 31300
-
 datasources:
   datasources.yaml:
     apiVersion: 1
@@ -11,3 +7,7 @@ datasources:
         url: http://prometheus-server.monitoring.svc.cluster.local
         access: proxy
         isDefault: true
+
+grafana.ini:
+  server:
+    root_url: "%(protocol)s://%(domain)s/grafana/"
